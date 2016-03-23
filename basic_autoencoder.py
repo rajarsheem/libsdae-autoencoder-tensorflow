@@ -6,11 +6,12 @@ from data import get_batch, get_full
 class BasicAutoEncoder:
     """A basic autoencoder with a single hidden layer"""
 
-    def __init__(self, input_dim, hidden_dim, epoch=1000, batch_size=50):
+    def __init__(self, data_x, hidden_dim, epoch=1000, batch_size=50):
+        self.data_x = data_x
         self.batch_size = batch_size
         self.epoch = epoch
         self.hidden_dim = hidden_dim
-        self.input_dim = input_dim
+        self.input_dim = len(data_x[0])
         self.hidden_feature = []
 
     def forward(self, x):
@@ -18,7 +19,7 @@ class BasicAutoEncoder:
             weights = tf.Variable(tf.random_normal([self.input_dim, self.hidden_dim], dtype=tf.float32),
                                   name='weights')
             biases = tf.Variable(tf.zeros([self.hidden_dim]), name='biases')
-            encoded = tf.nn.sigmoid(tf.matmul(x, weights) + biases,name='encoded')
+            encoded = tf.nn.sigmoid(tf.matmul(x, weights) + biases, name='encoded')
 
         with tf.name_scope('decode'):
             weights = tf.Variable(tf.random_normal([self.hidden_dim, self.input_dim], dtype=tf.float32),
@@ -42,16 +43,11 @@ class BasicAutoEncoder:
                 sess.run(tf.initialize_all_variables())
                 for i in range(self.epoch):
                     for j in range(50):
-                        b_x = get_batch(self.batch_size)
+                        b_x = get_batch(self.data_x, self.batch_size)
                         l, _ = sess.run([loss, train_op], feed_dict={x: b_x})
                     if i % 100 == 0:
-                        print(l)
-                self.hidden_feature = sess.run(encoded, feed_dict={x: get_full()})
+                        print('epoch {0}: loss = {1}'.format(i, l))
+                self.hidden_feature = sess.run(encoded, feed_dict={x: self.data_x})
 
     def get_hidden_feature(self):
         return self.hidden_feature
-
-ae = BasicAutoEncoder(4, 6)
-ae.run()
-h = ae.get_hidden_feature()
-print(h.shape)
