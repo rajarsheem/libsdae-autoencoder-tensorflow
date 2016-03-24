@@ -1,5 +1,5 @@
 # libsdae - Deep-Autoencoder & Denoising Autoencoder
-This library is based on Tensorflow 0.7.1. Hence, the latter is must.
+Requirements: Tensorflow and numpy.
 
 ### What is an Autoencoder, Stacked Autoencoder, Stacked Denoising AutoEncoder ?
 -> http://www.jmlr.org/papers/volume11/vincent10a/vincent10a.pdf
