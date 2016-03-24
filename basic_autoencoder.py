@@ -14,6 +14,7 @@ class BasicAutoEncoder:
         self.hidden_dim = hidden_dim
         self.input_dim = len(data_x[0])
         self.hidden_feature = []
+        # print(data_x.shape, data_x_.shape, hidden_dim)
 
     def forward(self, x):
         with tf.name_scope('encode'):

@@ -5,12 +5,12 @@ import numpy as np
 class StackedAutoencoder:
     """A deep autoencoder"""
 
-    def __init__(self, x, dims, depth=2, epoch=1000, noise=None):
+    def __init__(self, x, dims, epoch=1000, noise=None):
         self.noise = noise
         self.epoch = epoch
         self.dims = dims
         self.x = x
-        self.depth = depth
+        self.depth = len(dims)
 
     def add_noise(self):
         if self.noise == 'gaussian':
@@ -27,13 +27,13 @@ class StackedAutoencoder:
             pass
 
     def encode(self):
-        data = self.x
+
         ae=None
         for i in range(self.depth):
             if self.noise is None:
-                ae = BasicAutoEncoder(data_x=data, data_x_=data, hidden_dim=self.dims[i], epoch=self.epoch)
+                ae = BasicAutoEncoder(data_x=self.x, data_x_=self.x, hidden_dim=self.dims[i], epoch=self.epoch)
             else:
-                ae = BasicAutoEncoder(data_x=self.add_noise(), data_x_=data, hidden_dim=self.dims[i], epoch=self.epoch)
+                ae = BasicAutoEncoder(data_x=self.add_noise(), data_x_=self.x, hidden_dim=self.dims[i], epoch=self.epoch)
             ae.run()
-            data = ae.get_hidden_feature()
-        return data
+            self.x = ae.get_hidden_feature()
+        return self.x
