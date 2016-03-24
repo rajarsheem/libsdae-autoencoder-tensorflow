@@ -20,14 +20,13 @@ class BasicAutoEncoder:
         with tf.name_scope('encode'):
             weights = tf.Variable(tf.random_normal([self.input_dim, self.hidden_dim], dtype=tf.float32),
                                   name='weights')
+
             biases = tf.Variable(tf.zeros([self.hidden_dim]), name='biases')
             encoded = tf.nn.sigmoid(tf.matmul(x, weights) + biases, name='encoded')
 
         with tf.name_scope('decode'):
-            weights = tf.Variable(tf.random_normal([self.hidden_dim, self.input_dim], dtype=tf.float32),
-                                  name='weights')
             biases = tf.Variable(tf.zeros([self.input_dim]), name='biases')
-            decoded = tf.matmul(encoded, weights) + biases
+            decoded = tf.matmul(encoded, tf.transpose(weights)) + biases
         # loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(decoded, x, name='cross_entropy'))
         return encoded, decoded
 
