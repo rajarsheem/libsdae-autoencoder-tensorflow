@@ -7,4 +7,5 @@ This is a very simple library for Stacked autoencoder and denoising AE.
 -> http://ufldl.stanford.edu/wiki/index.php/Stacked_Autoencoders
 
 ### Usage :
--> [Will be posted soon]
+->  test.py has simple usage
+    [details will be posted soon]
