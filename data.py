@@ -6,9 +6,9 @@ x = iris.data
 y = iris.target
 
 
-def get_batch(X, size):
+def get_batch(X, X_, size):
     a = np.random.choice(len(X), size, replace=False)
-    return X[a]
+    return X[a], X_[a]
 
 
 def get_full():

@@ -6,7 +6,8 @@ from data import get_batch, get_full
 class BasicAutoEncoder:
     """A basic autoencoder with a single hidden layer"""
 
-    def __init__(self, data_x, hidden_dim, epoch=1000, batch_size=50):
+    def __init__(self, data_x, data_x_, hidden_dim, epoch=1000, batch_size=50):
+        self.data_x_ = data_x_
         self.data_x = data_x
         self.batch_size = batch_size
         self.epoch = epoch
@@ -29,25 +30,28 @@ class BasicAutoEncoder:
         # loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(decoded, x, name='cross_entropy'))
         return encoded, decoded
 
-    def train(self, x, decoded):
-        loss = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(x, decoded))))
+    def train(self, x_, decoded):
+        loss = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(x_, decoded))))
         train_op = tf.train.AdamOptimizer(0.001).minimize(loss)
         return loss, train_op
 
     def run(self):
         with tf.Graph().as_default():
             x = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x')
+            x_ = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x_')
             encoded, decoded = self.forward(x)
-            loss, train_op = self.train(x, decoded)
+            loss, train_op = self.train(x_, decoded)
             with tf.Session() as sess:
                 sess.run(tf.initialize_all_variables())
                 for i in range(self.epoch):
                     for j in range(50):
-                        b_x = get_batch(self.data_x, self.batch_size)
-                        l, _ = sess.run([loss, train_op], feed_dict={x: b_x})
+                        b_x, b_x_ = get_batch(self.data_x, self.data_x_, self.batch_size)
+                        sess.run(train_op, feed_dict={x: b_x, x_: b_x_})
                     if i % 100 == 0:
-                        print('epoch {0}: loss = {1}'.format(i, l))
-                self.hidden_feature = sess.run(encoded, feed_dict={x: self.data_x})
+                        l = sess.run(loss, feed_dict={x: self.data_x, x_: self.data_x_})
+                        print('epoch {0}: global loss = {1}'.format(i, l))
+                self.hidden_feature = sess.run(encoded, feed_dict={x: self.data_x_})
+                # print(sess.run(decoded, feed_dict={x: self.data_x})[0])
 
     def get_hidden_feature(self):
         return self.hidden_feature
