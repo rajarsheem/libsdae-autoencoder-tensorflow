@@ -1,4 +1,4 @@
-# Deep-Autoencoder
+# libsdae - Deep-Autoencoder & Denoising Autoencoder
 This is a very simple library for Stacked autoencoder and denoising AE.
 
 ### What is an Autoencoder, Stacked Autoencoder, Stacked Denoising AutoEncoder ?
