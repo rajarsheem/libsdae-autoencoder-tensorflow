@@ -20,3 +20,5 @@ noise = ['gaussian', 'mask-0.4']. mask-0.4 means 40% of bits will be masked for 
 x_ is the encoded feature representation of x.
 
 test.py has simple usage
+
+Note: If you find any issue or scope of improvements, please be kind and report to my email. Regards.
