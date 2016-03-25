@@ -13,4 +13,3 @@ def get_batch(X, X_, size):
 
 def get_full():
     return 0
-

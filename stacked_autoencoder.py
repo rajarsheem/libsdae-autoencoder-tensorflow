@@ -20,7 +20,9 @@ class StackedAutoencoder:
             frac = float(self.noise.split('-')[1])
             temp = np.copy(self.x)
             for i in temp:
-                n = np.random.choice(len(i), round(frac * len(i)), replace=False)
+                n = np.random.choice(
+                    len(i), round(frac * len(i)), replace=False
+                    )
                 i[n] = 0
             return temp
         if self.noise == 'sp':
@@ -28,12 +30,18 @@ class StackedAutoencoder:
 
     def encode(self):
 
-        ae=None
+        ae = None
         for i in range(self.depth):
             if self.noise is None:
-                ae = BasicAutoEncoder(data_x=self.x, data_x_=self.x, hidden_dim=self.dims[i], epoch=self.epoch)
+                ae = BasicAutoEncoder(
+                    data_x=self.x, data_x_=self.x,
+                    hidden_dim=self.dims[i], epoch=self.epoch
+                )
             else:
-                ae = BasicAutoEncoder(data_x=self.add_noise(), data_x_=self.x, hidden_dim=self.dims[i], epoch=self.epoch)
+                ae = BasicAutoEncoder(
+                    data_x=self.add_noise(), data_x_=self.x,
+                    hidden_dim=self.dims[i], epoch=self.epoch
+                )
             ae.run()
             self.x = ae.get_hidden_feature()
         return self.x
