@@ -2,11 +2,12 @@
 """
 
 from sklearn import datasets
-from stacked_autoencoder import StackedAutoencoder
+
+from deepautoencoder import StackedAutoEncoder
 
 iris = datasets.load_iris()
 x = iris.data
 
-result = StackedAutoencoder(x, dims=[5, 4, 3], noise='gaussian', epoch=1000).encode()
+result = StackedAutoEncoder(x, dims=[5, 4, 3], noise='gaussian', epoch=1000).encode()
 print(result)
 print(result.shape)

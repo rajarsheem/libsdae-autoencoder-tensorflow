@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from data import get_batch, get_full
+import deepautoencoder.data
 
 
 class BasicAutoEncoder:
@@ -45,7 +45,7 @@ class BasicAutoEncoder:
                 sess.run(tf.initialize_all_variables())
                 for i in range(self.epoch):
                     for j in range(50):
-                        b_x, b_x_ = get_batch(self.data_x, self.data_x_, self.batch_size)
+                        b_x, b_x_ = deepautoencoder.data.get_batch(self.data_x, self.data_x_, self.batch_size)
                         sess.run(train_op, feed_dict={x: b_x, x_: b_x_})
                     if i % 100 == 0:
                         l = sess.run(loss, feed_dict={x: self.data_x, x_: self.data_x_})

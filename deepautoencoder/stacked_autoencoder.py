@@ -1,8 +1,8 @@
-from basic_autoencoder import BasicAutoEncoder
 import numpy as np
+from deepautoencoder import BasicAutoEncoder
 
 
-class StackedAutoencoder:
+class StackedAutoEncoder:
     """A deep autoencoder"""
 
     def __init__(self, x, dims, epoch=1000, noise=None):
@@ -28,12 +28,13 @@ class StackedAutoencoder:
 
     def encode(self):
 
-        ae=None
+        ae = None
         for i in range(self.depth):
             if self.noise is None:
                 ae = BasicAutoEncoder(data_x=self.x, data_x_=self.x, hidden_dim=self.dims[i], epoch=self.epoch)
             else:
-                ae = BasicAutoEncoder(data_x=self.add_noise(), data_x_=self.x, hidden_dim=self.dims[i], epoch=self.epoch)
+                ae = BasicAutoEncoder(data_x=self.add_noise(), data_x_=self.x, hidden_dim=self.dims[i],
+                                      epoch=self.epoch)
             ae.run()
             self.x = ae.get_hidden_feature()
         return self.x
