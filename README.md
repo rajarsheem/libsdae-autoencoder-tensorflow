@@ -6,11 +6,6 @@ Requirements: Tensorflow and numpy.
 
 -> http://ufldl.stanford.edu/wiki/index.php/Stacked_Autoencoders
 
-### Install:
-
-```
-pip3 install deepautoencoder
-```
 
 ### Usage :
 ```python
