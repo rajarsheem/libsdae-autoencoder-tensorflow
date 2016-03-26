@@ -1,4 +1,4 @@
-# libsdae - Deep-Autoencoder & Denoising Autoencoder
+# Deep-Autoencoder & Denoising Autoencoder
 Requirements: Tensorflow and numpy.
 
 ### What is an Autoencoder, Stacked Autoencoder, Stacked Denoising AutoEncoder ?
@@ -8,6 +8,7 @@ Requirements: Tensorflow and numpy.
 
 ### Usage :
 ```python
+from deepautoencoder import StackedAutoEncoder
 x_ = StackedAutoencoder(x, dims=[5, 4, 3], noise='gaussian', epoch=1000).encode()
 ```
 
