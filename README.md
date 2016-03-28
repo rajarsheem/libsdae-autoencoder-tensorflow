@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/rajarsheem/libsdae.svg?branch=master)](https://travis-ci.org/rajarsheem/libsdae)
 # Deep-Autoencoder & Denoising Autoencoder
 Requirements: Tensorflow and numpy.
 
