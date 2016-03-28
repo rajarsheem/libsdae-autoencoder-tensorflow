@@ -6,7 +6,8 @@ import deepautoencoder.data
 class BasicAutoEncoder:
     """A basic autoencoder with a single hidden layer"""
 
-    def __init__(self, data_x, data_x_, hidden_dim, epoch=1000, batch_size=50):
+    def __init__(self, data_x, data_x_, hidden_dim, activation, epoch=1000, batch_size=50):
+        self.activation = activation
         self.data_x_ = data_x_
         self.data_x = data_x
         self.batch_size = batch_size
@@ -22,7 +23,14 @@ class BasicAutoEncoder:
                                   name='weights')
 
             biases = tf.Variable(tf.zeros([self.hidden_dim]), name='biases')
-            encoded = tf.nn.sigmoid(tf.matmul(x, weights) + biases, name='encoded')
+            if self.activation == 'sigmoid':
+                encoded = tf.nn.sigmoid(tf.matmul(x, weights) + biases, name='encoded')
+            elif self.activation == 'softmax':
+                encoded = tf.nn.softmax(tf.matmul(x, weights) + biases, name='encoded')
+            elif self.activation == 'linear':
+                encoded = tf.matmul(x, weights) + biases
+            elif self.activation == 'tanh':
+                encoded = tf.nn.tanh(tf.matmul(x, weights) + biases, name='encoded')
 
         with tf.name_scope('decode'):
             biases = tf.Variable(tf.zeros([self.input_dim]), name='biases')

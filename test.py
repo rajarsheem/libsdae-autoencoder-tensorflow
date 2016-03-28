@@ -7,6 +7,6 @@ from deepautoencoder import StackedAutoEncoder
 
 iris = datasets.load_iris()
 x = iris.data
-result = StackedAutoEncoder(x, dims=[5, 4, 3], noise='gaussian', epoch=1000).encode()
+result = StackedAutoEncoder(x, dims=5, activations=['sigmoid'], noise='gaussian', epoch=1000).encode()
 print(result)
 print(result.shape)

@@ -15,7 +15,7 @@ python3 setup.py
 ### Usage :
 ```python
 from deepautoencoder import StackedAutoEncoder
-x_ = StackedAutoencoder(x, dims=[5, 4, 3], noise='gaussian', epoch=1000).encode()
+x_ = StackedAutoencoder(x, dims=[5, 4], activations=['sigmoid', 'sigmoid'], noise='gaussian', epoch=1000).encode()
 ```
 
 If noise is not given, it becomes an autoencoder instead of denoising autoencoder.
