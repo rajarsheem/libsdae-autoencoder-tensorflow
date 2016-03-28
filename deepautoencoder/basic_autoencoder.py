@@ -6,7 +6,8 @@ import deepautoencoder.data
 class BasicAutoEncoder:
     """A basic autoencoder with a single hidden layer"""
 
-    def __init__(self, data_x, data_x_, hidden_dim, activation, epoch=1000, batch_size=50):
+    def __init__(self, data_x, data_x_, hidden_dim, activation, loss, epoch=1000, batch_size=50):
+        self.loss = loss
         self.activation = activation
         self.data_x_ = data_x_
         self.data_x = data_x
@@ -39,7 +40,10 @@ class BasicAutoEncoder:
         return encoded, decoded
 
     def train(self, x_, decoded):
-        loss = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(x_, decoded))))
+        if self.loss == 'rmse':
+            loss = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(x_, decoded))))
+        else:
+            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(decoded, x_))
         train_op = tf.train.AdamOptimizer(0.001).minimize(loss)
         return loss, train_op
 
