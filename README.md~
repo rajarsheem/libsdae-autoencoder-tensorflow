@@ -6,11 +6,6 @@ Requirements: Tensorflow and numpy.
 
 -> http://ufldl.stanford.edu/wiki/index.php/Stacked_Autoencoders
 
-### Install:
-```
-git clone https://github.com/rajarsheem/libsdae.git
-python3 setup.py
-```
 
 ### Usage :
 ```python
