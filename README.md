@@ -16,8 +16,13 @@ python3 setup.py
 ### Usage :
 ```python
 from deepautoencoder import StackedAutoEncoder
-x_ = StackedAutoencoder(x, dims=[5, 4], activations=['sigmoid', 'sigmoid'], noise='gaussian', epoch=1000, 
-loss='cross-entropy').encode()
+model = StackedAutoEncoder(dims=[5], activations=['sigmoid'], noise='gaussian', epoch=500,
+                           loss='rmse')
+# encoding same data                           
+result = model.fit_transform(x)
+# fitting on one dataset and encoding a random data
+model.fit(x)
+result = model.transform(np.random.rand(5, x.shape[1]))
 ```
 
 If noise is not given, it becomes an autoencoder instead of denoising autoencoder.

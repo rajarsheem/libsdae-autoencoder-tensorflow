@@ -15,7 +15,12 @@ class BasicAutoEncoder:
         self.epoch = epoch
         self.hidden_dim = hidden_dim
         self.input_dim = len(data_x[0])
-        self.hidden_feature = []
+        # self.hidden_feature = []
+        self.sess = tf.Session()
+        self.encoded=None
+        self.decoded=None
+        self.x=None
+        self.x_=None
         # print(data_x.shape, data_x_.shape, hidden_dim)
 
     def forward(self, x):
@@ -48,22 +53,26 @@ class BasicAutoEncoder:
         return loss, train_op
 
     def run(self):
-        with tf.Graph().as_default():
-            x = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x')
-            x_ = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x_')
-            encoded, decoded = self.forward(x)
-            loss, train_op = self.train(x_, decoded)
-            with tf.Session() as sess:
-                sess.run(tf.initialize_all_variables())
-                for i in range(self.epoch):
-                    for j in range(50):
-                        b_x, b_x_ = deepautoencoder.data.get_batch(self.data_x, self.data_x_, self.batch_size)
-                        sess.run(train_op, feed_dict={x: b_x, x_: b_x_})
-                    if i % 100 == 0:
-                        l = sess.run(loss, feed_dict={x: self.data_x, x_: self.data_x_})
-                        print('epoch {0}: global loss = {1}'.format(i, l))
-                self.hidden_feature = sess.run(encoded, feed_dict={x: self.data_x_})
-                # print(sess.run(decoded, feed_dict={x: self.data_x})[0])
+        # with tf.Graph().as_default():
+        self.x = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x')
+        self.x_ = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x_')
+        self.encoded, self.decoded = self.forward(self.x)
+        loss, train_op = self.train(self.x_, self.decoded)
+        self.sess = tf.Session()
+        self.sess.run(tf.initialize_all_variables())
+        for i in range(self.epoch):
+            for j in range(50):
+                b_x, b_x_ = deepautoencoder.data.get_batch(self.data_x, self.data_x_, self.batch_size)
+                self.sess.run(train_op, feed_dict={self.x: b_x, self.x_: b_x_})
+            if i % 100 == 0:
+                l = self.sess.run(loss, feed_dict={self.x: self.data_x, self.x_: self.data_x_})
+                print('epoch {0}: global loss = {1}'.format(i, l))
+        self.hidden_feature = self.sess.run(self.encoded, feed_dict={self.x: self.data_x_})
+        # print(sess.run(decoded, feed_dict={x: self.data_x})[0])
 
     def get_hidden_feature(self):
         return self.hidden_feature
+
+    def transform(self, data):
+        temp = self.sess.run(self.encoded, feed_dict={self.x: data})
+        return temp

@@ -2,12 +2,14 @@
 """
 
 from sklearn import datasets
-
+import numpy as np
 from deepautoencoder import StackedAutoEncoder
 
 iris = datasets.load_iris()
 x = iris.data
-result = StackedAutoEncoder(x, dims=[5], activations=['sigmoid'], noise='gaussian', epoch=1000,
-                            loss='cross-entropy').encode()
-print(result)
-print(result.shape)
+model = StackedAutoEncoder(dims=[5], activations=['sigmoid'], noise='gaussian', epoch=500,
+                           loss='rmse')
+model.fit(x)
+result = model.transform(np.random.rand(5, x.shape[1]))
+# print(result)
+print(result[0])
