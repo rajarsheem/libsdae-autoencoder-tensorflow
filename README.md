@@ -33,6 +33,8 @@ noise = (optional)['gaussian', 'mask-0.4']. mask-0.4 means 40% of bits will be m
 
 x_ is the encoded feature representation of x.
 
+lr : learning rate. 0.001 is default.
+
 loss = (optional) reconstruction error. rmse or softmax with cross entropy are allowed. default is rmse.
 
 test.py has simple usage

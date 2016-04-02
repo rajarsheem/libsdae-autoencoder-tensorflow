@@ -18,7 +18,8 @@ class StackedAutoEncoder:
         assert set(self.activations + allowed_activations) == set(allowed_activations), "Incorrect activation given."
         assert self.noise in allowed_noises, "Incorrect noise given"
 
-    def __init__(self, dims, activations, epoch=1000, noise=None, loss='rmse'):
+    def __init__(self, dims, activations, epoch=1000, noise=None, loss='rmse',lr=0.001):
+        self.lr = lr
         self.ae = None
         self.loss = loss
         self.activations = activations
@@ -47,11 +48,11 @@ class StackedAutoEncoder:
             if self.noise is None:
                 self.ae = BasicAutoEncoder(data_x=x, activation=self.activations[i], data_x_=x,
                                            hidden_dim=self.dims[i], epoch=self.epoch, loss=self.loss,
-                                           batch_size=int(0.3 * len(x)))
+                                           batch_size=int(0.3 * len(x)), lr=self.lr)
             else:
                 self.ae = BasicAutoEncoder(data_x=self.add_noise(x), activation=self.activations[i], data_x_=x,
                                            hidden_dim=self.dims[i],
-                                           epoch=self.epoch, loss=self.loss, batch_size=int(0.3 * len(x)))
+                                           epoch=self.epoch, loss=self.loss, batch_size=int(0.3 * len(x)), lr=self.lr)
             self.ae.run()
             self.x = self.ae.get_hidden_feature()
 
