@@ -1,5 +1,6 @@
 import numpy as np
 from deepautoencoder import BasicAutoEncoder
+import tensorflow as tf
 
 allowed_activations = ['sigmoid', 'tanh', 'softmax']
 allowed_noises = [None, 'gaussian', 'mask']
@@ -18,7 +19,7 @@ class StackedAutoEncoder:
         assert set(self.activations + allowed_activations) == set(allowed_activations), "Incorrect activation given."
         assert self.noise in allowed_noises, "Incorrect noise given"
 
-    def __init__(self, dims, activations, epoch=1000, noise=None, loss='rmse',lr=0.001):
+    def __init__(self, dims, activations, epoch=1000, noise=None, loss='rmse', lr=0.001):
         self.lr = lr
         self.ae = None
         self.loss = loss
@@ -28,6 +29,7 @@ class StackedAutoEncoder:
         self.dims = dims
         self.assertions()
         self.depth = len(dims)
+        self.weights, self.biases = [], []
 
     def add_noise(self, x):
         if self.noise == 'gaussian':
@@ -53,11 +55,28 @@ class StackedAutoEncoder:
                 self.ae = BasicAutoEncoder(data_x=self.add_noise(x), activation=self.activations[i], data_x_=x,
                                            hidden_dim=self.dims[i],
                                            epoch=self.epoch, loss=self.loss, batch_size=int(0.3 * len(x)), lr=self.lr)
-            self.ae.run()
-            self.x = self.ae.get_hidden_feature()
+            x, w, b = self.ae.run()
+            self.weights.append(w)
+            self.biases.append(b)
 
-    def transform(self, x):
-        return self.ae.transform(x)
+    def transform(self, data):
+        sess = tf.Session()
+        x = tf.constant(data, dtype=tf.float32)
+        # x = tf.placeholder(shape=data.shape, dtype=tf.float32)
+        for w, b, a in zip(self.weights, self.biases, self.activations):
+            weight = tf.constant(w, dtype=tf.float32)
+            bias = tf.constant(b, dtype=tf.float32)
+            layer = tf.matmul(x, weight) + bias
+
+            if a == 'sigmoid':
+                x = tf.nn.sigmoid(layer, name='encoded')
+            elif a == 'softmax':
+                x = tf.nn.softmax(layer, name='encoded')
+            elif a == 'linear':
+                pass
+            elif a == 'tanh':
+                x = tf.nn.tanh(layer, name='encoded')
+        return x.eval(session=sess)
 
     def fit_transform(self, x):
         self.fit(x)
