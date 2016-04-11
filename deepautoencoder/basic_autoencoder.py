@@ -18,25 +18,31 @@ class BasicAutoEncoder:
         self.input_dim = len(data_x[0])
         # self.hidden_feature = []
         self.sess = tf.Session()
-        self.encoded=None
-        self.decoded=None
-        self.x=None
-        self.x_=None
+        self.encoded = None
+        self.decoded = None
+        self.x = None
+        self.x_ = None
 
     def forward(self, x):
         with tf.name_scope('encode'):
-            weights = tf.Variable(tf.random_normal([self.input_dim, self.hidden_dim], dtype=tf.float32),
-                                  name='weights')
+            weights = tf.Variable(
+                tf.random_normal(
+                    [self.input_dim, self.hidden_dim],
+                    dtype=tf.float32
+                    ),
+                name='weights'
+                )
 
             biases = tf.Variable(tf.zeros([self.hidden_dim]), name='biases')
+            encoded_vals = tf.matmul(x, weights) + biases
             if self.activation == 'sigmoid':
-                encoded = tf.nn.sigmoid(tf.matmul(x, weights) + biases, name='encoded')
+                encoded = tf.nn.sigmoid(encoded_vals, name='encoded')
             elif self.activation == 'softmax':
-                encoded = tf.nn.softmax(tf.matmul(x, weights) + biases, name='encoded')
+                encoded = tf.nn.softmax(encoded_vals, name='encoded')
             elif self.activation == 'linear':
-                encoded = tf.matmul(x, weights) + biases
+                encoded = encoded_vals
             elif self.activation == 'tanh':
-                encoded = tf.nn.tanh(tf.matmul(x, weights) + biases, name='encoded')
+                encoded = tf.nn.tanh(encoded_vals, name='encoded')
 
         with tf.name_scope('decode'):
             biases = tf.Variable(tf.zeros([self.input_dim]), name='biases')
@@ -48,7 +54,8 @@ class BasicAutoEncoder:
         if self.loss == 'rmse':
             loss = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(x_, decoded))))
         else:
-            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(decoded, x_))
+            loss = tf.reduce_mean(
+                tf.nn.softmax_cross_entropy_with_logits(decoded, x_))
         train_op = tf.train.AdamOptimizer(self.lr).minimize(loss)
         return loss, train_op
 
