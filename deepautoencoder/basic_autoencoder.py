@@ -6,7 +6,8 @@ import deepautoencoder.data
 class BasicAutoEncoder:
     """A basic autoencoder with a single hidden layer"""
 
-    def __init__(self, data_x, data_x_, hidden_dim, activation, loss, lr, epoch=1000, batch_size=50):
+    def __init__(self, data_x, data_x_, hidden_dim, activation, loss, lr, print_step, epoch=1000, batch_size=50):
+        self.print_step = print_step
         self.lr = lr
         self.loss = loss
         self.activation = activation
@@ -56,10 +57,9 @@ class BasicAutoEncoder:
         self.sess = tf.Session()
         self.sess.run(tf.initialize_all_variables())
         for i in range(self.epoch):
-            for j in range(50):
-                b_x, b_x_ = deepautoencoder.data.get_batch(self.data_x, self.data_x_, self.batch_size)
-                self.sess.run(train_op, feed_dict={self.x: b_x, self.x_: b_x_})
-            if i % 100 == 0:
+            b_x, b_x_ = deepautoencoder.data.get_batch(self.data_x, self.data_x_, self.batch_size)
+            self.sess.run(train_op, feed_dict={self.x: b_x, self.x_: b_x_})
+            if (i+1) % self.print_step == 0:
                 l = self.sess.run(loss, feed_dict={self.x: self.data_x, self.x_: self.data_x_})
                 print('epoch {0}: global loss = {1}'.format(i, l))
         # debug

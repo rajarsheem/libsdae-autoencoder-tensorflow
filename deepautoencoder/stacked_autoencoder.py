@@ -19,7 +19,9 @@ class StackedAutoEncoder:
         assert set(self.activations + allowed_activations) == set(allowed_activations), "Incorrect activation given."
         assert self.noise in allowed_noises, "Incorrect noise given"
 
-    def __init__(self, dims, activations, epoch=1000, noise=None, loss='rmse', lr=0.001):
+    def __init__(self, dims, activations, epoch=1000, noise=None, loss='rmse', lr=0.001, batch_size=100, print_step=50):
+        self.print_step = print_step
+        self.batch_size = batch_size
         self.lr = lr
         self.ae = None
         self.loss = loss
@@ -47,14 +49,16 @@ class StackedAutoEncoder:
 
     def fit(self, x):
         for i in range(self.depth):
+            print('Layer {0}'.format(i + 1))
             if self.noise is None:
                 self.ae = BasicAutoEncoder(data_x=x, activation=self.activations[i], data_x_=x,
                                            hidden_dim=self.dims[i], epoch=self.epoch, loss=self.loss,
-                                           batch_size=int(0.3 * len(x)), lr=self.lr)
+                                           batch_size=self.batch_size, lr=self.lr, print_step=self.print_step)
             else:
                 self.ae = BasicAutoEncoder(data_x=self.add_noise(x), activation=self.activations[i], data_x_=x,
                                            hidden_dim=self.dims[i],
-                                           epoch=self.epoch, loss=self.loss, batch_size=int(0.3 * len(x)), lr=self.lr)
+                                           epoch=self.epoch, loss=self.loss, batch_size=self.batch_size, lr=self.lr,
+                                           print_step=self.print_step)
             x, w, b = self.ae.run()
             self.weights.append(w)
             self.biases.append(b)
