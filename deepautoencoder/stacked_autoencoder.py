@@ -2,7 +2,7 @@ import numpy as np
 from deepautoencoder import BasicAutoEncoder
 import tensorflow as tf
 
-allowed_activations = ['sigmoid', 'tanh', 'softmax']
+allowed_activations = ['sigmoid', 'tanh', 'softmax', 'relu']
 allowed_noises = [None, 'gaussian', 'mask']
 allowed_losses = ['rmse', 'cross-entropy']
 
@@ -66,20 +66,11 @@ class StackedAutoEncoder:
     def transform(self, data):
         sess = tf.Session()
         x = tf.constant(data, dtype=tf.float32)
-        # x = tf.placeholder(shape=data.shape, dtype=tf.float32)
         for w, b, a in zip(self.weights, self.biases, self.activations):
             weight = tf.constant(w, dtype=tf.float32)
             bias = tf.constant(b, dtype=tf.float32)
             layer = tf.matmul(x, weight) + bias
-
-            if a == 'sigmoid':
-                x = tf.nn.sigmoid(layer, name='encoded')
-            elif a == 'softmax':
-                x = tf.nn.softmax(layer, name='encoded')
-            elif a == 'linear':
-                pass
-            elif a == 'tanh':
-                x = tf.nn.tanh(layer, name='encoded')
+            x = self.ae.activate(layer, a)
         return x.eval(session=sess)
 
     def fit_transform(self, x):
