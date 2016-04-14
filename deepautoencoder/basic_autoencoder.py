@@ -6,7 +6,7 @@ class BasicAutoEncoder:
     """A basic autoencoder with a single hidden layer. This is not to be externally used but internally by
     StackedAutoEncoder"""
 
-    def __init__(self, data_x, data_x_, hidden_dim, activation, loss, lr, print_step, epoch=1000, batch_size=50):
+    def __init__(self, data_x, data_x_, hidden_dim, activation, loss, lr, print_step, epoch, batch_size=50):
         self.print_step = print_step
         self.lr = lr
         self.loss = loss

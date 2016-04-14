@@ -1,44 +1,49 @@
 [![Build Status](https://travis-ci.org/rajarsheem/libsdae.svg?branch=master)](https://travis-ci.org/rajarsheem/libsdae)
-# Deep-Autoencoder & Denoising Autoencoder
-Requirements: Tensorflow and numpy.
+# libsdae - deep-Autoencoder & denoising autoencoder
 
-### What is an Autoencoder, Stacked Autoencoder, Stacked Denoising AutoEncoder ?
--> http://www.jmlr.org/papers/volume11/vincent10a/vincent10a.pdf
+A simple Tensorflow based library for Deep autoencoder and denoising AE. Library follows sklearn style.
 
--> http://ufldl.stanford.edu/wiki/index.php/Stacked_Autoencoders
+### Prerequisities & Support
+* Tensorflow 0.7.1 is needed (https://www.tensorflow.org/versions/r0.7/get_started/os_setup.html#pip-installation)
+* Supports both Python 2.7 and 3.4+ . Inform if it doesn't.
 
-### Install:
+## Installing
+
+Just clone / download zip and then install
 ```
 git clone https://github.com/rajarsheem/libsdae.git
 python3 setup.py
 ```
 
-### Usage :
+## Usage and small doc
+<i>test.ipynb</i> has small example where both a tiny and a large dataset is used.
+
 ```python
 from deepautoencoder import StackedAutoEncoder
-model = StackedAutoEncoder(dims=[5], activations=['sigmoid'], noise='gaussian', epoch=500,
-                           loss='rmse')
-# encoding same data                           
+model = StackedAutoEncoder(dims=[5,6], activations=['relu', 'relu'], noise='gaussian', epoch=[10000,500],
+                            loss='rmse', lr=0.007, batch_size=50, print_step=2000)
+# usage 1 - encoding same data                           
 result = model.fit_transform(x)
-# fitting on one dataset and encoding a random data
+# usage 2 - fitting on one dataset and transforming (encoding) on another data
 model.fit(x)
 result = model.transform(np.random.rand(5, x.shape[1]))
 ```
+### Important points:
+* If noise is not given, it becomes an autoencoder instead of denoising autoencoder.
+* dims refers to the dimenstions of hidden layers. (3 layers in this case)
+* noise = (optional)['gaussian', 'mask-0.4']. mask-0.4 means 40% of bits will be masked for each example.
+* x_ is the encoded feature representation of x.
+* loss = (optional) reconstruction error. rmse or softmax with cross entropy are allowed. default is rmse.
+* print_step is the no. of steps to skip between two loss prints.
+* activations can be 'sigmoid', 'softmax', 'tanh' and 'relu'.
+* batch_size is the size of batch in every epoch
+* Note that while running, global loss means the loss on the total dataset and not on a specific batch.
+* epoch is a list denoting the no. of iterations for each layer.
 
-If noise is not given, it becomes an autoencoder instead of denoising autoencoder.
+### Citing
 
-dims refers to the dimenstions of hidden layers. (3 layers in this case)
+* Stacked Denoising Autoencoders: Learning Useful Representations in a Deep Network with a Local Denoising Criterion
+  by P. Vincent, H. Larochelle, I. Lajoie, Y. Bengio and P. Manzagol (Journal of Machine Learning Research 11 (2010) 3371-3408)
 
-noise = (optional)['gaussian', 'mask-0.4']. mask-0.4 means 40% of bits will be masked for each example.
-
-x_ is the encoded feature representation of x.
-
-lr : learning rate. 0.001 is default.
-
-loss = (optional) reconstruction error. rmse or softmax with cross entropy are allowed. default is rmse.
-
-test.py has simple usage
-
-Note: If you find any issue or scope of improvements, please be kind and report to rajarsheem@gmail.com or raise an issue here.
-
-Regards.
+### Contributing
+You are free to contribute by starting a pull request.

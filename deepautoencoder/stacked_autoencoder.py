@@ -15,7 +15,7 @@ class StackedAutoEncoder:
         assert self.loss in allowed_losses, 'Incorrect loss given'
         assert 'list' in str(type(self.dims)), 'dims must be a list even if there is one layer.'
         assert len(self.activations) == len(self.dims), "No. of activations must equal to no. of hidden layers"
-        assert self.epoch > 0, "No. of epoch must be atleast 1"
+        assert all(True if x > 0 else False for x in self.epoch), "No. of epoch must be atleast 1"
         assert set(self.activations + allowed_activations) == set(allowed_activations), "Incorrect activation given."
         assert self.noise in allowed_noises, "Incorrect noise given"
 
@@ -52,12 +52,12 @@ class StackedAutoEncoder:
             print('Layer {0}'.format(i + 1))
             if self.noise is None:
                 self.ae = BasicAutoEncoder(data_x=x, activation=self.activations[i], data_x_=x,
-                                           hidden_dim=self.dims[i], epoch=self.epoch, loss=self.loss,
+                                           hidden_dim=self.dims[i], epoch=self.epoch[i], loss=self.loss,
                                            batch_size=self.batch_size, lr=self.lr, print_step=self.print_step)
             else:
                 self.ae = BasicAutoEncoder(data_x=self.add_noise(x), activation=self.activations[i], data_x_=x,
                                            hidden_dim=self.dims[i],
-                                           epoch=self.epoch, loss=self.loss, batch_size=self.batch_size, lr=self.lr,
+                                           epoch=self.epoch[i], loss=self.loss, batch_size=self.batch_size, lr=self.lr,
                                            print_step=self.print_step)
             x, w, b = self.ae.run()
             self.weights.append(w)

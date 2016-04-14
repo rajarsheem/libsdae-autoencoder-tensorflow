@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='deepautoencoder',
-    version='1.0',
+    version='1.1',
     packages=['deepautoencoder'],
     url='https://github.com/rajarsheem/libsdae',
     license='',
