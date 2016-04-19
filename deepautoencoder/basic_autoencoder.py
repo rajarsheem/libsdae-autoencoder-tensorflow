@@ -58,7 +58,6 @@ class BasicAutoEncoder:
             if (i + 1) % self.print_step == 0:
                 l = sess.run(loss, feed_dict={x: self.data_x, x_: self.data_x_})
                 print('epoch {0}: global loss = {1}'.format(i, l))
-                # print(sess.run(encode['weights'])[0])
         # debug
         # print('Decoded', sess.run(decoded, feed_dict={x: self.data_x_})[0])
         return sess.run(encoded, feed_dict={x: self.data_x_}), sess.run(
