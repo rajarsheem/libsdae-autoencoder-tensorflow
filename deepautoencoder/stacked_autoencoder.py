@@ -14,6 +14,7 @@ class StackedAutoEncoder:
         global allowed_activations, allowed_noises, allowed_losses
         assert self.loss in allowed_losses, 'Incorrect loss given'
         assert 'list' in str(type(self.dims)), 'dims must be a list even if there is one layer.'
+        assert len(self.epoch) == len(self.dims), "No. of epochs must equal to no. of hidden layers"
         assert len(self.activations) == len(self.dims), "No. of activations must equal to no. of hidden layers"
         assert all(True if x > 0 else False for x in self.epoch), "No. of epoch must be atleast 1"
         assert set(self.activations + allowed_activations) == set(allowed_activations), "Incorrect activation given."

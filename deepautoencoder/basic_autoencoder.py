@@ -18,10 +18,6 @@ class BasicAutoEncoder:
         self.hidden_dim = hidden_dim
         self.input_dim = len(data_x[0])
         self.hidden_feature = []
-        self.encoded = None
-        self.decoded = None
-        self.x = None
-        self.x_ = None
 
     def activate(self, linear, name):
         if name == 'sigmoid':
@@ -46,24 +42,24 @@ class BasicAutoEncoder:
 
     def run(self):
         sess = tf.Session()
-        self.x = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x')
-        self.x_ = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x_')
+        x = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x')
+        x_ = tf.placeholder(dtype=tf.float32, shape=[None, self.input_dim], name='x_')
         encode = {'weights': tf.Variable(tf.truncated_normal([self.input_dim, self.hidden_dim], dtype=tf.float32)),
                   'biases': tf.Variable(tf.truncated_normal([self.hidden_dim], dtype=tf.float32))}
-        encoded_vals = tf.matmul(self.x, encode['weights']) + encode['biases']
-        self.encoded = self.activate(encoded_vals, self.activation)
+        encoded_vals = tf.matmul(x, encode['weights']) + encode['biases']
+        encoded = self.activate(encoded_vals, self.activation)
         decode = {'biases': tf.Variable(tf.truncated_normal([self.input_dim], dtype=tf.float32))}
-        self.decoded = tf.matmul(self.encoded, tf.transpose(encode['weights'])) + decode['biases']
-        loss, train_op = self.train(self.x_, self.decoded)
+        decoded = tf.matmul(encoded, tf.transpose(encode['weights'])) + decode['biases']
+        loss, train_op = self.train(x_, decoded)
         sess.run(tf.initialize_all_variables())
         for i in range(self.epoch):
             b_x, b_x_ = deepautoencoder.data.get_batch(self.data_x, self.data_x_, self.batch_size)
-            sess.run(train_op, feed_dict={self.x: b_x, self.x_: b_x_})
+            sess.run(train_op, feed_dict={x: b_x, x_: b_x_})
             if (i + 1) % self.print_step == 0:
-                l = sess.run(loss, feed_dict={self.x: self.data_x, self.x_: self.data_x_})
+                l = sess.run(loss, feed_dict={x: self.data_x, x_: self.data_x_})
                 print('epoch {0}: global loss = {1}'.format(i, l))
                 # print(sess.run(encode['weights'])[0])
         # debug
-        # print('Decoded', sess.run(self.decoded, feed_dict={self.x: self.data_x_})[0])
-        return sess.run(self.encoded, feed_dict={self.x: self.data_x_}), sess.run(
+        # print('Decoded', sess.run(decoded, feed_dict={x: self.data_x_})[0])
+        return sess.run(encoded, feed_dict={x: self.data_x_}), sess.run(
             encode['weights']), sess.run(encode['biases'])
