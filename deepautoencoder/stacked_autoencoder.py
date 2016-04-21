@@ -1,5 +1,6 @@
 import numpy as np
-from deepautoencoder import BasicAutoEncoder
+
+import deepautoencoder.data
 import tensorflow as tf
 
 allowed_activations = ['sigmoid', 'tanh', 'softmax', 'relu']
@@ -8,7 +9,7 @@ allowed_losses = ['rmse', 'cross-entropy']
 
 
 class StackedAutoEncoder:
-    """A deep autoencoder"""
+    """A deep autoencoder with denoising capability"""
 
     def assertions(self):
         global allowed_activations, allowed_noises, allowed_losses
@@ -24,7 +25,6 @@ class StackedAutoEncoder:
         self.print_step = print_step
         self.batch_size = batch_size
         self.lr = lr
-        self.ae = None
         self.loss = loss
         self.activations = activations
         self.noise = noise
@@ -52,17 +52,15 @@ class StackedAutoEncoder:
         for i in range(self.depth):
             print('Layer {0}'.format(i + 1))
             if self.noise is None:
-                self.ae = BasicAutoEncoder(data_x=x, activation=self.activations[i], data_x_=x,
-                                           hidden_dim=self.dims[i], epoch=self.epoch[i], loss=self.loss,
-                                           batch_size=self.batch_size, lr=self.lr, print_step=self.print_step)
+                x = self.run(data_x=x, activation=self.activations[i], data_x_=x,
+                             hidden_dim=self.dims[i], epoch=self.epoch[i], loss=self.loss,
+                             batch_size=self.batch_size, lr=self.lr, print_step=self.print_step)
             else:
-                self.ae = BasicAutoEncoder(data_x=self.add_noise(x), activation=self.activations[i], data_x_=x,
-                                           hidden_dim=self.dims[i],
-                                           epoch=self.epoch[i], loss=self.loss, batch_size=self.batch_size, lr=self.lr,
-                                           print_step=self.print_step)
-            x, w, b = self.ae.run()
-            self.weights.append(w)
-            self.biases.append(b)
+                x = self.run(data_x=self.add_noise(x), activation=self.activations[i], data_x_=x,
+                             hidden_dim=self.dims[i],
+                             epoch=self.epoch[i], loss=self.loss, batch_size=self.batch_size, lr=self.lr,
+                             print_step=self.print_step)
+        print(x)
 
     def transform(self, data):
         sess = tf.Session()
@@ -71,9 +69,54 @@ class StackedAutoEncoder:
             weight = tf.constant(w, dtype=tf.float32)
             bias = tf.constant(b, dtype=tf.float32)
             layer = tf.matmul(x, weight) + bias
-            x = self.ae.activate(layer, a)
+            x = self.activate(layer, a)
         return x.eval(session=sess)
 
     def fit_transform(self, x):
         self.fit(x)
         return self.transform(x)
+
+    def run(self, data_x, data_x_, hidden_dim, activation, loss, lr, print_step, epoch, batch_size=100):
+        input_dim = len(data_x[0])
+        sess = tf.Session()
+        x = tf.placeholder(dtype=tf.float32, shape=[None, input_dim], name='x')
+        x_ = tf.placeholder(dtype=tf.float32, shape=[None, input_dim], name='x_')
+        encode = {'weights': tf.Variable(tf.truncated_normal([input_dim, hidden_dim], dtype=tf.float32)),
+                  'biases': tf.Variable(tf.truncated_normal([hidden_dim], dtype=tf.float32))}
+        decode = {'biases': tf.Variable(tf.truncated_normal([input_dim], dtype=tf.float32)),
+                  'weights': tf.transpose(encode['weights'])}
+
+        encoded = self.activate(tf.matmul(x, encode['weights']) + encode['biases'], activation)
+        decoded = tf.matmul(encoded, decode['weights']) + decode['biases']
+
+        # reconstruction loss
+        if loss == 'rmse':
+            loss = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(x_, decoded))))
+        elif loss == 'cross-entropy':
+            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(decoded, x_))
+        train_op = tf.train.AdamOptimizer(lr).minimize(loss)
+
+        sess.run(tf.initialize_all_variables())
+        for i in range(epoch):
+            b_x, b_x_ = deepautoencoder.data.get_batch(data_x, data_x_, batch_size)
+            sess.run(train_op, feed_dict={x: b_x, x_: b_x_})
+            if (i + 1) % print_step == 0:
+                l = sess.run(loss, feed_dict={x: data_x, x_: data_x_})
+                print('epoch {0}: global loss = {1}'.format(i, l))
+        # debug
+        # print('Decoded', sess.run(decoded, feed_dict={x: self.data_x_})[0])
+        self.weights.append(sess.run(encode['weights']))
+        self.biases.append(sess.run(encode['biases']))
+        return sess.run(encoded, feed_dict={x: data_x_})
+
+    def activate(self, linear, name):
+        if name == 'sigmoid':
+            return tf.nn.sigmoid(linear, name='encoded')
+        elif name == 'softmax':
+            return tf.nn.softmax(linear, name='encoded')
+        elif name == 'linear':
+            return linear
+        elif name == 'tanh':
+            return tf.nn.tanh(linear, name='encoded')
+        elif name == 'relu':
+            return tf.nn.relu(linear, name='encoded')

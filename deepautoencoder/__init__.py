@@ -1,2 +1,1 @@
-from .basic_autoencoder import BasicAutoEncoder
 from .stacked_autoencoder import StackedAutoEncoder
