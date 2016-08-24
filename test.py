@@ -8,11 +8,10 @@ model = StackedAutoEncoder(
     activations=['linear', 'linear'],
     epoch=[1000, 1000],
     loss='rmse',
-    noise='mask-0.4',
     lr=0.007,
-    batch_size=60,
+    batch_size=50,
     print_step=200
 )
 
 a = model.fit_transform(iris)
-# print(a)
+print(a)
