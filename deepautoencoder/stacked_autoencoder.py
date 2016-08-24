@@ -52,6 +52,7 @@ class StackedAutoEncoder:
                 n = np.random.choice(len(i), round(
                     frac * len(i)), replace=False)
                 i[n] = 0
+            print(temp)
             return temp
         if self.noise == 'sp':
             pass
