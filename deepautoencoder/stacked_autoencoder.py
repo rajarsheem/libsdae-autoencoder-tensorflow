@@ -114,8 +114,7 @@ class StackedAutoEncoder:
         if loss == 'rmse':
             loss = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(x_, decoded))))
         elif loss == 'cross-entropy':
-            loss = tf.reduce_mean(
-                tf.nn.softmax_cross_entropy_with_logits(decoded, x_))
+            loss = -tf.reduce_mean(x_ * tf.log(decoded))
         train_op = tf.train.AdamOptimizer(lr).minimize(loss)
 
         sess.run(tf.initialize_all_variables())
