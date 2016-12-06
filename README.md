@@ -27,6 +27,8 @@ result = model.fit_transform(x)
 model.fit(x)
 result = model.transform(np.random.rand(5, x.shape[1]))
 ```
+![Alt text](libsdae.png?raw=true "Demo for MNIST data")
+
 ### Important points:
 * If noise is not given, it becomes an autoencoder instead of denoising autoencoder.
 * dims refers to the dimenstions of hidden layers. (3 layers in this case)
