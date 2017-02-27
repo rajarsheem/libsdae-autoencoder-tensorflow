@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/rajarsheem/libsdae.svg?branch=master)](https://travis-ci.org/rajarsheem/libsdae)
+[![Build Status](https://travis-ci.org/rajarsheem/libsdae-autoencoder-tensorflow.svg?branch=master)](https://travis-ci.org/rajarsheem/libsdae-autoencoder-tensorflow)
 # libsdae - deep-Autoencoder & denoising autoencoder
 
 A simple Tensorflow based library for Deep autoencoder and denoising AE. Library follows sklearn style.
