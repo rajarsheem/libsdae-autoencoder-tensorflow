@@ -47,4 +47,6 @@ result = model.transform(np.random.rand(5, x.shape[1]))
   by P. Vincent, H. Larochelle, I. Lajoie, Y. Bengio and P. Manzagol (Journal of Machine Learning Research 11 (2010) 3371-3408)
 
 ### Contributing
-You are free to contribute by starting a pull request.
+You are free to contribute by starting a pull request. Some suggestions are:
+* Variational Autoencoders
+* Recurrent Autoencoders.
