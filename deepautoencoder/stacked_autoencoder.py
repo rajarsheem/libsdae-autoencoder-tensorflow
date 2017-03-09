@@ -147,18 +147,13 @@ class StackedAutoEncoder:
         # If we are pretraining the last layer, keep the decoder weights
         # so we can decode back to the original dimensions.
         if last_layer:
-            encode_ws, encode_bs, decode_ws, decode_bs = sess.run(
-                [encode['weights'], encode['biases'],
-                 decode['weights'], decode['biases']])
-            self.weights.append(encode_ws)
-            self.weights.append(decode_ws)
-            self.biases.append(encode_bs)
-            self.biases.append(decode_bs)
+            self.weights.append(encode['weights'])
+            self.weights.append(decode['weights'])
+            self.biases.append(encode['biases'])
+            self.biases.append(decode['biases'])
         else:
-            encode_ws, encode_bs = sess.run(
-                [encode['weights'], encode['biases']])
-            self.weights.append(encode_ws)
-            self.biases.append(encode_bs)
+            self.weights.append(encode['weights'])
+            self.biases.append(encode['biases'])
         return sess.run(encoded, feed_dict={x: data_x_})
 
     def finetune(self, data_x, data_x_, loss, lr, print_step, epoch,
