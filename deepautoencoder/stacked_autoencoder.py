@@ -112,12 +112,12 @@ class StackedAutoEncoder:
 
         # reconstruction loss
         if loss == 'rmse':
-            loss = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(x_, decoded))))
+            loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(x_, decoded))))
         elif loss == 'cross-entropy':
             loss = -tf.reduce_mean(x_ * tf.log(decoded))
         train_op = tf.train.AdamOptimizer(lr).minimize(loss)
 
-        sess.run(tf.initialize_all_variables())
+        sess.run(tf.global_variables_initializer())
         for i in range(epoch):
             b_x, b_x_ = utils.get_batch(
                 data_x, data_x_, batch_size)
