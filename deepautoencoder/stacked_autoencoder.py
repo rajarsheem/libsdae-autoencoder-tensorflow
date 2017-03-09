@@ -28,14 +28,17 @@ class StackedAutoEncoder:
             self.noise, allowed_noises), "Incorrect noise given"
 
     def __init__(self, dims, activations, epoch=1000, noise=None, loss='rmse',
-                 lr=0.001, batch_size=100, print_step=50):
+                 lr=0.001, batch_size=100, print_step=50, epoch_finetune=2000,
+                 lr_finetune=0.0001):
         self.print_step = print_step
         self.batch_size = batch_size
         self.lr = lr
+        self.lr_finetune = lr_finetune
         self.loss = loss
         self.activations = activations
         self.noise = noise
         self.epoch = epoch
+        self.epoch_finetune = epoch_finetune
         self.dims = dims
         self.assertions()
         self.depth = len(dims)
@@ -56,7 +59,9 @@ class StackedAutoEncoder:
         if self.noise == 'sp':
             pass
 
-    def fit(self, x):
+    def fit(self, x, finetune=False):
+        x_original = x
+
         for i in range(self.depth):
             print('Layer {0}'.format(i + 1))
             if self.noise is None:
@@ -76,7 +81,14 @@ class StackedAutoEncoder:
                              batch_size=self.batch_size,
                              lr=self.lr, print_step=self.print_step)
 
-    def transform(self, data):
+        if finetune:
+            self.finetune(data_x=x_original, data_x_=x_original,
+                          loss=self.loss, lr=self.lr_finetune,
+                          print_step=self.print_step,
+                          epoch=self.epoch_finetune,
+                          batch_size=self.batch_size)
+
+    def transform(self, data, return_tensor=False):
         tf.reset_default_graph()
         sess = tf.Session()
         x = tf.constant(data, dtype=tf.float32)
@@ -85,6 +97,9 @@ class StackedAutoEncoder:
             bias = tf.constant(b, dtype=tf.float32)
             layer = tf.matmul(x, weight) + bias
             x = self.activate(layer, a)
+
+        if return_tensor:
+            return x
         return x.eval(session=sess)
 
     def fit_transform(self, x):
@@ -130,6 +145,42 @@ class StackedAutoEncoder:
         self.weights.append(sess.run(encode['weights']))
         self.biases.append(sess.run(encode['biases']))
         return sess.run(encoded, feed_dict={x: data_x_})
+
+    def finetune(self, data_x, data_x_, loss, lr, print_step, epoch,
+                 batch_size=100):
+        """
+        Finetunes the entire network after each layer is trained.
+        """
+        tf.reset_default_graph()
+        input_dim = len(data_x[0])
+        sess = tf.Session()
+
+        x = tf.placeholder(dtype=tf.float32, shape=[None, input_dim], name='x')
+        x_ = tf.placeholder(dtype=tf.float32, shape=[
+            None, input_dim], name='x_')
+
+        decoded = x
+        for w, b, a in zip(self.weights, self.biases, self.activations):
+            weight = tf.constant(w, dtype=tf.float32)
+            bias = tf.constant(b, dtype=tf.float32)
+            layer = tf.matmul(decoded, weight) + bias
+            decoded = self.activate(layer, a)
+
+            print decoded
+
+        if loss == 'rmse':
+            loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(x_, decoded))))
+        elif loss == 'cross-entropy':
+            loss = -tf.reduce_mean(x_ * tf.log(decoded))
+        train_op = tf.train.AdamOptimizer(lr).minimize(loss)
+
+        for i in range(epoch):
+            b_x, b_x_ = utils.get_batch(
+                data_x, data_x_, batch_size)
+            sess.run(train_op, feed_dict={x: b_x, x_: b_x_})
+            if (i + 1) % print_step == 0:
+                l = sess.run(loss, feed_dict={x: data_x, x_: data_x_})
+                print('epoch {0}: global loss = {1}'.format(i, l))
 
     def activate(self, linear, name):
         if name == 'sigmoid':

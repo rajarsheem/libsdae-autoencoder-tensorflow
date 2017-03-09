@@ -11,6 +11,6 @@ train_X, train_Y = data[idx], target[idx]
 test_X, test_Y = data[~idx], target[~idx]
 
 model = StackedAutoEncoder(dims=[200, 200], activations=['linear', 'linear'], epoch=[
-                           3000, 3000], loss='rmse', lr=0.007, batch_size=100, print_step=200)
-model.fit(train_X)
+                           500, 500], loss='rmse', lr=0.007, batch_size=100, print_step=100)
+model.fit(train_X, finetune=True)
 test_X_ = model.transform(test_X)
