@@ -27,8 +27,8 @@ class StackedAutoEncoder:
         assert utils.noise_validator(
             self.noise, allowed_noises), "Incorrect noise given"
 
-    def __init__(self, dims, activations, epoch=1000, noise=None, loss='rmse',
-                 lr=0.001, batch_size=100, print_step=50, epoch_finetune=2000,
+    def __init__(self, dims, activations, epoch=(1000,), noise=None, loss='rmse',
+                 lr=0.001, batch_size=100, print_step=50, epoch_finetune=(2000,),
                  lr_finetune=0.0001):
         self.print_step = print_step
         self.batch_size = batch_size
@@ -65,15 +65,13 @@ class StackedAutoEncoder:
         for i in range(self.depth):
             print('Layer {0}'.format(i + 1))
 
-            last_layer = i == self.depth - 1
             if self.noise is None:
                 x = self.run(data_x=x, activation=self.activations[i],
                              data_x_=x,
                              hidden_dim=self.dims[i], epoch=self.epoch[
                                  i], loss=self.loss,
                              batch_size=self.batch_size, lr=self.lr,
-                             print_step=self.print_step,
-                             last_layer=last_layer)
+                             print_step=self.print_step)
             else:
                 temp = np.copy(x)
                 x = self.run(data_x=self.add_noise(temp),
@@ -82,8 +80,7 @@ class StackedAutoEncoder:
                              epoch=self.epoch[
                                  i], loss=self.loss,
                              batch_size=self.batch_size,
-                             lr=self.lr, print_step=self.print_step,
-                             last_layer=last_layer)
+                             lr=self.lr, print_step=self.print_step)
 
         if finetune:
             self.finetune(data_x=x_original, data_x_=x_original,
@@ -108,7 +105,7 @@ class StackedAutoEncoder:
         return self.transform(x)
 
     def run(self, data_x, data_x_, hidden_dim, activation, loss, lr,
-            print_step, epoch, batch_size=100, last_layer=False):
+            print_step, epoch, batch_size=100):
         tf.reset_default_graph()
         input_dim = len(data_x[0])
         sess = tf.Session()
@@ -144,16 +141,8 @@ class StackedAutoEncoder:
         # debug
         # print('Decoded', sess.run(decoded, feed_dict={x: self.data_x_})[0])
 
-        # If we are pretraining the last layer, keep the decoder weights
-        # so we can decode back to the original dimensions.
-        if last_layer:
-            self.weights.append(encode['weights'])
-            self.weights.append(decode['weights'])
-            self.biases.append(encode['biases'])
-            self.biases.append(decode['biases'])
-        else:
-            self.weights.append(encode['weights'])
-            self.biases.append(encode['biases'])
+        self.weights.append(encode['weights'])
+        self.biases.append(encode['biases'])
         return sess.run(encoded, feed_dict={x: data_x_})
 
     def finetune(self, data_x, data_x_, loss, lr, print_step, epoch,
