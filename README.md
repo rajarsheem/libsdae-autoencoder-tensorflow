@@ -4,7 +4,7 @@
 A simple Tensorflow based library for Deep autoencoder and denoising AE. Library follows sklearn style.
 
 ### Prerequisities & Support
-* Tensorflow 0.7.1 is needed (https://www.tensorflow.org/versions/r0.7/get_started/os_setup.html#pip-installation)
+* Tensorflow 1.0 is needed (https://www.tensorflow.org/install/)
 * Supports both Python 2.7 and 3.4+ . Inform if it doesn't.
 
 ## Installing
