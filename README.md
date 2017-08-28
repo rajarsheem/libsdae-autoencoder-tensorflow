@@ -7,8 +7,6 @@ A simple Tensorflow based library for Deep autoencoder and denoising AE. Library
 * Supports both Python 2.7 and 3.4+ . Inform if it doesn't.
 
 ## Installing
-
-Just clone / download zip and then install
 ```
 pip install git+https://github.com/rajarsheem/libsdae.git
 ```
