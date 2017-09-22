@@ -125,6 +125,7 @@ class StackedAutoEncoder:
             if (i + 1) % print_step == 0:
                 l = sess.run(loss, feed_dict={x: data_x, x_: data_x_})
                 print('epoch {0}: global loss = {1}'.format(i, l))
+        self.loss_val = l
         # debug
         # print('Decoded', sess.run(decoded, feed_dict={x: self.data_x_})[0])
         self.weights.append(sess.run(encode['weights']))
