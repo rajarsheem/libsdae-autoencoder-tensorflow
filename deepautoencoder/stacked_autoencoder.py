@@ -60,19 +60,19 @@ class StackedAutoEncoder:
                 pass
 
 
-    def fit(self, train_x, eval_x=None):
+    def fit(self, train_x, val_x=None):
         for i in range(self.depth):
             print('Layer {0}'.format(i + 1))
             if self.noise is None:
-                train_x, eval_x = self.run(data_x=train_x, eval_x=eval_x, activation=self.activations[i],
-                                           data_x_=train_x, eval_x_=eval_x, hidden_dim=self.dims[i],
+                train_x, val_x = self.run(data_x=train_x, val_x=val_x, activation=self.activations[i],
+                                           data_x_=train_x, val_x_=val_x, hidden_dim=self.dims[i],
                                            epoch=self.epoch[i], loss=self.loss, batch_size=self.batch_size,
                                            lr=self.lr, print_step=self.print_step)
             else:
                 temp_train = np.copy(train_x)
-                temp_eval = None if eval_x is None else np.copy(eval_x)
-                train_x, eval_x = self.run(data_x=self.add_noise(temp_train), eval_x=self.add_noise(temp_eval),
-                                           activation=self.activations[i], data_x_=train_x, eval_x_=eval_x,
+                temp_val = None if val_x is None else np.copy(val_x)
+                train_x, val_x = self.run(data_x=self.add_noise(temp_train), val_x=self.add_noise(temp_val),
+                                           activation=self.activations[i], data_x_=train_x, val_x_=val_x,
                                            hidden_dim=self.dims[i], epoch=self.epoch[i], loss=self.loss,
                                            batch_size=self.batch_size, lr=self.lr, print_step=self.print_step)
 
@@ -87,11 +87,11 @@ class StackedAutoEncoder:
             x = self.activate(layer, a)
         return x.eval(session=sess)
 
-    def fit_transform(self, train_x, eval_x=None):
-        self.fit(train_x=train_x, eval_x=eval_x)
+    def fit_transform(self, train_x, val_x=None):
+        self.fit(train_x=train_x, val_x=val_x)
         return self.transform(train_x)
 
-    def run(self, data_x, data_x_, eval_x, eval_x_, hidden_dim, activation, loss, lr,
+    def run(self, data_x, data_x_, val_x, val_x_, hidden_dim, activation, loss, lr,
             print_step, epoch, batch_size=100):
         tf.reset_default_graph()
         input_dim = len(data_x[0])
@@ -119,12 +119,12 @@ class StackedAutoEncoder:
             sess.run(train_op, feed_dict={x: b_x, x_: b_x_})
             if (i + 1) % print_step == 0:
                 loss_train = sess.run(loss, feed_dict={x: data_x, x_: data_x_})
-                if eval_x is None:
+                if val_x is None:
                     print('epoch {0}: global train loss = {1}'.format(i, loss_train))
                 else:
-                    loss_eval = sess.run(loss, feed_dict={x: eval_x, x_: eval_x_})
-                    print('epoch {0}: global train loss = {1}, global evaluation loss = {2}'
-                          .format(i, loss_train, loss_eval))
+                    loss_val = sess.run(loss, feed_dict={x: val_x, x_: val_x_})
+                    print('epoch {0}: global train loss = {1}, global validation loss = {2}'
+                          .format(i, loss_train, loss_val))
 
 
         self.loss_val = loss_train
@@ -132,9 +132,9 @@ class StackedAutoEncoder:
         # print('Decoded', sess.run(decoded, feed_dict={x: self.data_x_})[0])
         self.weights.append(sess.run(encode['weights']))
         self.biases.append(sess.run(encode['biases']))
-        if eval_x is not None:
-            eval_x = sess.run(encoded, feed_dict={x: eval_x})
-        return sess.run(encoded, feed_dict={x: data_x_}), eval_x
+        if val_x is not None:
+            val_x = sess.run(encoded, feed_dict={x: val_x})
+        return sess.run(encoded, feed_dict={x: data_x_}), val_x
 
     def activate(self, linear, name):
         if name == 'sigmoid':
