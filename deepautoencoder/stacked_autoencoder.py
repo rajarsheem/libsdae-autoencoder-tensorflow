@@ -133,7 +133,7 @@ class StackedAutoEncoder:
         self.weights.append(sess.run(encode['weights']))
         self.biases.append(sess.run(encode['biases']))
         if val_x is not None:
-            val_x = sess.run(encoded, feed_dict={x: val_x})
+            val_x = sess.run(encoded, feed_dict={x: val_x_})
         return sess.run(encoded, feed_dict={x: data_x_}), val_x
 
     def activate(self, linear, name):
