@@ -122,12 +122,12 @@ class StackedAutoEncoder:
                 loss_train = sess.run(loss, feed_dict={x: data_x, x_: data_x_})
                 dec_train = sess.run(decoded, feed_dict={x: data_x})
                 if val_x is None:
-                    print('epoch {0}: train loss = {1:.5f}, R²-Score Train = {2:.2f}'
+                    print('epoch {0}: train loss = {1:.5f}, R²-Score Train = {2:.3f}'
                           .format(i, loss_train, r2_score(data_x_, dec_train)))
                 else:
                     loss_val = sess.run(loss, feed_dict={x: val_x, x_: val_x_})
                     dec_val = sess.run(decoded, feed_dict={x: val_x})
-                    print('epoch {0}: train loss = {1:.5f}, validation loss = {2:.5f},'
+                    print('epoch {0}: train loss = {1:.5f}, validation loss = {2:.3f},'
                           ' R²-Score Train = {3:.2f}, R²-Score Val = {4:.2f}'
                           .format(i, loss_train, loss_val, r2_score(data_x_, dec_train,
                                                                     multioutput='variance_weighted'),
