@@ -40,7 +40,7 @@ class StackedAutoEncoder:
         self.dims = dims
         self.assertions()
         self.depth = len(dims)
-        self.weights, self.biases = [], []
+        self.weights, self.biases, self.dec_biases = [], [], []
 
     def add_noise(self, x):
         if x is None:
@@ -88,6 +88,27 @@ class StackedAutoEncoder:
             x = self.activate(layer, a)
         return x.eval(session=sess)
 
+    def getReconsturction(self, data):
+        tf.reset_default_graph()
+        sess = tf.Session()
+        x = tf.constant(data, dtype=tf.float32)
+        for w, b, a in zip(self.weights, self.biases, self.activations):
+            weight = tf.constant(w, dtype=tf.float32)
+            bias = tf.constant(b, dtype=tf.float32)
+            layer = tf.matmul(x, weight) + bias
+            x = self.activate(layer, a)
+
+        for w, b, a in zip(reversed(self.weights), reversed(self.dec_biases), reversed(self.activations)):
+            weight = tf.constant(w, dtype=tf.float32)
+            weight = tf.transpose(weight)
+            bias = tf.constant(b, dtype=tf.float32)
+            layer = tf.matmul(x, weight) + bias
+            x = self.activate(layer, a)
+
+        #tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(x_, decoded))))
+        return x.eval(session=sess)
+
+
     def fit_transform(self, train_x, val_x=None):
         self.fit(train_x=train_x, val_x=val_x)
         return self.transform(train_x)
@@ -127,8 +148,8 @@ class StackedAutoEncoder:
                 else:
                     loss_val = sess.run(loss, feed_dict={x: val_x, x_: val_x_})
                     dec_val = sess.run(decoded, feed_dict={x: val_x})
-                    print('epoch {0}: train loss = {1:.5f}, validation loss = {2:.3f},'
-                          ' R²-Score Train = {3:.2f}, R²-Score Val = {4:.2f}'
+                    print('epoch {0}: train loss = {1:.5f}, validation loss = {2:.5f},'
+                          ' R²-Score Train = {3:.3f}, R²-Score Val = {4:.3f}'
                           .format(i, loss_train, loss_val, r2_score(data_x_, dec_train,
                                                                     multioutput='variance_weighted'),
                                   r2_score(val_x_, dec_val, multioutput='variance_weighted')))
@@ -141,6 +162,7 @@ class StackedAutoEncoder:
         # print('Decoded', sess.run(decoded, feed_dict={x: self.data_x_})[0])
         self.weights.append(sess.run(encode['weights']))
         self.biases.append(sess.run(encode['biases']))
+        self.dec_biases.append(sess.run(decode['biases']))
         if val_x is not None:
             val_x = sess.run(encoded, feed_dict={x: val_x_})
         return sess.run(encoded, feed_dict={x: data_x_}), val_x
