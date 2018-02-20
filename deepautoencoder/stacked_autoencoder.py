@@ -2,6 +2,7 @@ import numpy as np
 import deepautoencoder.utils as utils
 import tensorflow as tf
 from sklearn.metrics import r2_score
+import os
 
 allowed_activations = ['sigmoid', 'tanh', 'softmax', 'relu', 'linear']
 allowed_noises = [None, 'gaussian', 'mask']
@@ -207,7 +208,10 @@ class StackedAutoEncoder:
             val_x = sess.run(encoded, feed_dict={x: val_x_})
         train_x = sess.run(encoded, feed_dict={x: data_x_})
         tf.add_to_collection("train_op", train_op)
-        save_path = saver.save(sess, './SDA_model/Layer{}/SDA_model'.format(depth))
+        layerPath = './SDA_model/Layer{}/SDA_model'.format(depth)
+        if not os.path.exists(layerPath):
+            os.makedirs(layerPath)
+        save_path = saver.save(sess, layerPath)
         print("SDA-Model saved in path: %s" % save_path)
         return train_x, val_x
 
